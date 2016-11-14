@@ -396,8 +396,10 @@ class Application extends \yii\web\Application
         Widget::$counter = 0;
         Widget::$stack = [];
         $this->getErrorHandler()->setConnection($this->getConnection());
+        $this->getRequest()->setConnection($this->getConnection());
         $this->getRequest()->setHostInfo('http://' . $_SERVER['HTTP_HOST']);
         $this->getRequest()->setPathInfo($_SERVER['REQUEST_URI']);
+        $this->getResponse()->setConnection($this->getConnection());
         foreach ($this->bootstrap as $k => $component)
         {
             if ( ! is_object($component))

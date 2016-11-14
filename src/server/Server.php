@@ -3,6 +3,7 @@
 namespace tourze\workerman\yii2\server;
 
 use tourze\workerman\yii2\Application;
+use tourze\workerman\yii2\async\Task;
 use Workerman\Worker;
 use yii\base\Component;
 
@@ -60,6 +61,6 @@ abstract class Server extends Component
      */
     public function task($data, $dst_worker_id = -1)
     {
-        return $this->server->task($data, $dst_worker_id);
+        Task::runTask($data, $dst_worker_id);
     }
 }
