@@ -6,7 +6,7 @@ use tourze\workerman\yii2\server\HttpServer;
 use Yii;
 use yii\console\Controller;
 
-class SwooleController extends Controller
+class ServerController extends Controller
 {
 
     /**
