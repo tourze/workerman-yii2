@@ -87,8 +87,6 @@ class HttpServer extends Server
 
         $_SERVER['SERVER_ADDR'] = '127.0.0.1';
         $_SERVER['SERVER_NAME'] = 'localhost';
-
-        Worker::runAll();
     }
 
     /**
@@ -225,6 +223,14 @@ class HttpServer extends Server
             $_SERVER['PHP_SELF'] = $_SERVER['SCRIPT_NAME'] = $_SERVER['DOCUMENT_URI'] = '/' . $this->indexFile;
             $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
             $_SERVER['REQUEST_TIME'] = time();
+
+            $_GET = http_build_query($_GET);
+            parse_str($_GET, $_GET);
+            $_POST = http_build_query($_POST);
+            parse_str($_POST, $_POST);
+            $_COOKIE = http_build_query($_COOKIE);
+            parse_str($_COOKIE, $_COOKIE);
+            $_REQUEST = array_merge($_GET, $_POST);
 
 //            $connection->send(print_r($_SERVER, true));
 //            return;

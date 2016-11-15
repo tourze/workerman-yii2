@@ -3,6 +3,7 @@
 namespace tourze\workerman\yii2\commands;
 
 use tourze\workerman\yii2\server\HttpServer;
+use Workerman\Worker;
 use Yii;
 use yii\console\Controller;
 
@@ -28,5 +29,7 @@ class ServerController extends Controller
         /** @var HttpServer $server */
         $server = new HttpServer;
         $server->run($app);
+
+        Worker::runAll();
     }
 }
