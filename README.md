@@ -99,6 +99,7 @@ return [
             'server' => [
                 'count' => 4,
             ],
+            'logFile' => __DIR__ . '/../runtime/workerman.log',
         ],
     ],
 ];

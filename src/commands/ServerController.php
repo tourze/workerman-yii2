@@ -17,6 +17,14 @@ class ServerController extends Controller
      */
     public function actionHttp($app)
     {
+        // 重新组装一次 $argv
+        global $argv;
+        unset($argv[0]);
+        unset($argv[2]);
+        $argv = array_values($argv);
+        //print_r($argv);
+        //return;
+
         /** @var HttpServer $server */
         $server = new HttpServer;
         $server->run($app);

@@ -71,6 +71,9 @@ class HttpServer extends Server
             $this->debug = $this->config['debug'];
         }
         $this->root = $this->config['root'];
+
+        Worker::$logFile = $this->config['logFile'];
+
         $this->server = new Worker("http://{$this->config['host']}:{$this->config['port']}");
         foreach ($this->config['server'] as $k => $v)
         {
@@ -96,6 +99,28 @@ class HttpServer extends Server
     public function onWorkerStart($worker)
     {
         $this->setProcessTitle($this->name . ': worker');
+
+        $_SERVER = [
+            'QUERY_STRING'         => '',
+            'REQUEST_METHOD'       => '',
+            'REQUEST_URI'          => '',
+            'SERVER_PROTOCOL'      => '',
+            'SERVER_NAME'          => '',
+            'HTTP_HOST'            => '',
+            'HTTP_USER_AGENT'      => '',
+            'HTTP_ACCEPT'          => '',
+            'HTTP_ACCEPT_LANGUAGE' => '',
+            'HTTP_ACCEPT_ENCODING' => '',
+            'HTTP_COOKIE'          => '',
+            'HTTP_CONNECTION'      => '',
+            'REMOTE_ADDR'          => '',
+            'REMOTE_PORT'          => '0',
+        ];
+
+        $file = $this->root . '/' . $this->indexFile;
+        $_SERVER['SCRIPT_FILENAME'] = $file;
+        $_SERVER['DOCUMENT_ROOT'] = $this->root;
+        $_SERVER['SCRIPT_NAME'] = $_SERVER['DOCUMENT_URI'] = '/' . $this->indexFile;
 
         // 关闭Yii2自己实现的异常错误
         defined('YII_ENABLE_ERROR_HANDLER') || define('YII_ENABLE_ERROR_HANDLER', false);
@@ -164,27 +189,8 @@ class HttpServer extends Server
      */
     public function onMessage($connection, $data)
     {
-        // 测试DI Container性能
-//        $j = 100000;
-//        $s1 = microtime(true);
-//        for ($i=0; $i<$j; $i++)
-//        {
-//            $obj = Yii::createObject('yii\web\Request');
-//        }
-//        $t1 = microtime(true) - $s1;
-//        // 更换新的Container
-//        $s2 = microtime(true);
-//        Yii::$container = new Container();
-//        for ($i=0; $i<$j; $i++)
-//        {
-//            $obj = Yii::createObject('yii\web\Request');
-//        }
-//        $t2 = microtime(true) - $s2;
-//        $response->end(json_encode(['t1' => $t1, 't2' => $t2]));
-//        return;
-
-        //$id = posix_getpid();
-        //echo "id: $id\n";
+//        $id = posix_getpid();
+//        echo "id: $id\n";
 //        $t = '<pre>';
 //        $t .= print_r($_SERVER, true);
 //        $t .= '</pre>';
@@ -197,8 +203,12 @@ class HttpServer extends Server
             xhprof_enable(XHPROF_FLAGS_MEMORY | XHPROF_FLAGS_CPU);
         }
 
-        $uri = $_SERVER['REQUEST_URI'];
+        $_SERVER['REQUEST_SCHEME'] = 'http';
+        $urlInfo = parse_url($_SERVER['REQUEST_URI']);
+        //var_dump($urlInfo);
+        $uri = $_SERVER['ORIG_PATH_INFO'] = $urlInfo['path'];
         $file = $this->root . $uri;
+
         if ($uri != '/' && is_file($file) && pathinfo($file, PATHINFO_EXTENSION) != 'php')
         {
             // 非php文件, 最好使用nginx来输出
@@ -209,13 +219,15 @@ class HttpServer extends Server
         }
         else
         {
-            // 准备环境信息
-            // 只要进入PHP的处理流程, 都默认转发给Yii来做处理
-            // 这样意味着, web目录下的PHP文件, 不会直接执行
             $file = $this->root . '/' . $this->indexFile;
             $_SERVER['SCRIPT_FILENAME'] = $file;
             $_SERVER['DOCUMENT_ROOT'] = $this->root;
-            $_SERVER['SCRIPT_NAME'] = $_SERVER['DOCUMENT_URI'] = '/' . $this->indexFile;
+            $_SERVER['PHP_SELF'] = $_SERVER['SCRIPT_NAME'] = $_SERVER['DOCUMENT_URI'] = '/' . $this->indexFile;
+            $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
+            $_SERVER['REQUEST_TIME'] = time();
+
+//            $connection->send(print_r($_SERVER, true));
+//            return;
 
             // 使用clone, 原型模式
             // 所有请求都clone一个原生$app对象
@@ -234,12 +246,6 @@ class HttpServer extends Server
 
             try
             {
-                //$t = '<pre>';
-                //$t .= print_r($_SERVER, true);
-                //$t .= print_r($request, true);
-                //$t .= '</pre>';
-                //$response->end($t);
-                //return;
                 $app->run();
                 $app->afterRun();
             }
