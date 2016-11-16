@@ -194,13 +194,6 @@ class HttpServer extends Server
 //        $t .= '</pre>';
 //        return $connection->send($t);
 
-        //xdebug_start_trace();
-
-        if ($this->xhprofDebug)
-        {
-            xhprof_enable(XHPROF_FLAGS_MEMORY | XHPROF_FLAGS_CPU);
-        }
-
         $_SERVER['REQUEST_SCHEME'] = 'http';
         $urlInfo = parse_url($_SERVER['REQUEST_URI']);
         //var_dump($urlInfo);
@@ -217,6 +210,11 @@ class HttpServer extends Server
         }
         else
         {
+            if ($this->xhprofDebug)
+            {
+                xhprof_enable(XHPROF_FLAGS_MEMORY | XHPROF_FLAGS_CPU);
+            }
+
             $file = $this->root . '/' . $this->indexFile;
             $_SERVER['SCRIPT_FILENAME'] = $file;
             $_SERVER['DOCUMENT_ROOT'] = $this->root;
@@ -232,8 +230,8 @@ class HttpServer extends Server
             parse_str($_COOKIE, $_COOKIE);
             $_REQUEST = array_merge($_GET, $_POST);
 
-//            $connection->send(print_r($_SERVER, true));
-//            return;
+            //$connection->send(print_r($_SERVER, true));
+            //return;
 
             // 使用clone, 原型模式
             // 所有请求都clone一个原生$app对象
@@ -286,17 +284,14 @@ class HttpServer extends Server
             // 还原环境变量
             Yii::$app = $this->app;
             unset($app);
-        }
 
-        //xdebug_stop_trace();
-        //xdebug_print_function_stack();
-
-        if ($this->xhprofDebug)
-        {
-            $xhprofData = xhprof_disable();
-            $xhprofRuns = new \XHProfRuns_Default();
-            $runId = $xhprofRuns->save_run($xhprofData, 'xhprof_test');
-            echo "http://127.0.0.1/xhprof/xhprof_html/index.php?run=" . $runId . '&source=xhprof_test'."\n";
+            if ($this->xhprofDebug)
+            {
+                $xhprofData = xhprof_disable();
+                $xhprofRuns = new \XHProfRuns_Default();
+                $runId = $xhprofRuns->save_run($xhprofData, 'xhprof_test');
+                echo "http://127.0.0.1/xhprof/xhprof_html/index.php?run=" . $runId . '&source=xhprof_test'."\n";
+            }
         }
     }
 }
