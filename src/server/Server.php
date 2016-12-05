@@ -106,6 +106,7 @@ abstract class Server extends Object
         if ( ! isset($yiiConfig['components']['assetManager']['basePath']))
         {
             $yiiConfig['components']['assetManager']['basePath'] = $root . '/assets';
+            $yiiConfig['components']['assetManager']['baseUrl'] =  '/assets';
         }
         $yiiConfig['aliases']['@webroot'] = $root;
         $yiiConfig['aliases']['@web'] = '/';
