@@ -126,7 +126,7 @@ class FileTarget extends \yii\log\FileTarget
         // 这里的$text合并, 最好也放到task中去实现, 但是因为在格式化的过程中, 需要用到当前的一些组件信息, 不好大改, 暂时这样先
         // TODO 优化array_map, 减少代码执行量
         $text = implode("\n", array_map([$this, 'formatMessage'], $this->messages)) . "\n";
-        Task::addTask('\tourze\workerman\yii2\log\FileTarget::taskFlush', [
+        Task::pushTask('\tourze\workerman\yii2\log\FileTarget::taskFlush', [
             'text' => $text,
             'enableRotation' => $this->enableRotation,
             'logFile' => $this->logFile,

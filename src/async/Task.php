@@ -1,9 +1,8 @@
 <?php
 
 namespace tourze\workerman\yii2\async;
-
-use tourze\workerman\yii2\Application;
 use Yii;
+use yii\redis\Connection;
 
 /**
  * 使用
@@ -12,6 +11,24 @@ use Yii;
  */
 class Task
 {
+
+    /**
+     * @var string
+     */
+    public static $taskQueueKey = 'task_key';
+
+    /**
+     * @var string
+     */
+    public static $taskCountKey = 'task_count';
+
+    /**
+     * @return Connection
+     */
+    public static function getRedis()
+    {
+        return Yii::$app->get('redis');
+    }
 
     /**
      * 打包数据
@@ -34,39 +51,50 @@ class Task
      */
     public static function unpackData($data)
     {
-        return unserialize($data);
+        return (array) unserialize($data);
     }
 
     /**
      * 增加异步执行任务
-     * 每个task有大概0.2-0.5ms的开销
      *
      * @param string $function
      * @param array  $params
      * @return int
      * @throws \tourze\workerman\yii2\async\Exception
      */
-    public static function addTask($function, $params = [])
+    public static function pushTask($function, $params = [])
     {
-        $data = [$function, $params];
+        $data = self::packData($function, $params);
+        self::getRedis()->lpush(self::$taskQueueKey, $data);
+        $taskId = self::getRedis()->incr(self::$taskCountKey);
+        return $taskId;
+    }
 
-        self::runTask($data, 0);
-        return 0;
+    /**
+     * 返回一条task数据
+     *
+     * @return string
+     */
+    public static function popTask()
+    {
+        return self::getRedis()->lpop(self::$taskQueueKey);
     }
 
     /**
      * 执行任务
      *
      * @param string $data
-     * @param int    $taskId
      * @return mixed
      */
-    public static function runTask($data, $taskId)
+    public static function runTask($data)
     {
-        //$data = self::unpackData($data);
+        $data = self::unpackData($data);
         $function = array_shift($data);
-        //echo "$taskId Run task: $function\n";
-        $params = array_shift($data);
-        return call_user_func_array($function, $params);
+        $params = (array) array_shift($data);
+        if ($function)
+        {
+            return call_user_func_array($function, $params);
+        }
+        return null;
     }
 }

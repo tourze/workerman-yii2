@@ -20,6 +20,16 @@ abstract class Server extends Object
 {
 
     /**
+     * @var array 当前配置文件
+     */
+    public $config = [];
+
+    /**
+     * @var bool
+     */
+    public $debug = false;
+
+    /**
      * @var string 服务器名称
      */
     public $name = 'workerman-server';
@@ -172,18 +182,32 @@ abstract class Server extends Object
         $port = ArrayHelper::getValue($config, 'port');
 
         // 执行 HTTP SERVER
-        $serverConfig = ArrayHelper::getValue($config, 'server', []);
-        /** @var HttpServer $server */
-        $server = new HttpServer([
-            'app' => Application::$workerApp,
-            'host' => $host,
-            'port' => $port,
-            'debug' => $isDebug,
-            'root' => $root,
-        ]);
-        $server->run($serverConfig);
+        $serverConfig = ArrayHelper::getValue($config, 'server');
+        if ($serverConfig)
+        {
+            /** @var HttpServer $server */
+            $server = new HttpServer([
+                'app' => Application::$workerApp,
+                'host' => $host,
+                'port' => $port,
+                'debug' => $isDebug,
+                'root' => $root,
+            ]);
+            $server->run($serverConfig);
+        }
 
         // 执行 TASK SERVER
+        $taskConfig = ArrayHelper::getValue($config, 'task');
+        if ($taskConfig)
+        {
+            $task = new TaskServer([
+                'app' => Application::$workerApp,
+                'host' => ArrayHelper::getValue($taskConfig, 'host', $host), // 默认跟http服务同一个主机名
+                'port' => ArrayHelper::getValue($taskConfig, 'port', $port + 1), // 默认任务使用的http服务端口+1
+                'debug' => $isDebug,
+            ]);
+            $task->run($taskConfig);
+        }
 
         Worker::runAll();
     }

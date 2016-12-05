@@ -3,6 +3,7 @@
 namespace demo\controllers;
 
 use demo\models\User;
+use tourze\workerman\yii2\async\Task;
 use Yii;
 use yii\web\Controller;
 use yii\web\Response;
@@ -41,5 +42,13 @@ class ApiController extends Controller
             $rs[] = $user->toArray();
         }
         return $rs;
+    }
+
+    /**
+     * 测试定时任务
+     */
+    public function actionTask()
+    {
+        Task::pushTask("time");
     }
 }

@@ -38,7 +38,7 @@ class LogTarget extends \yii\debug\LogTarget
         $data['summary'] = $summary;
 
         //self::saveDebugData($this->tag, $this->module->dataPath, $data, $this->module->fileMode, $this->module->historySize, $summary);
-        Task::addTask('\tourze\workerman\yii2\debug\LogTarget::saveDebugData', [$this->tag, $this->module->dataPath, $data, $this->module->fileMode, $this->module->historySize, $summary]);
+        Task::pushTask('\tourze\workerman\yii2\debug\LogTarget::saveDebugData', [$this->tag, $this->module->dataPath, $data, $this->module->fileMode, $this->module->historySize, $summary]);
     }
 
     /**

@@ -18,29 +18,14 @@ class HttpServer extends Server
 {
 
     /**
-     * @var array 当前配置文件
-     */
-    public $config = [];
-
-    /**
      * @var string 缺省文件名
      */
     public $indexFile = 'index.php';
 
     /**
-     * @var bool
-     */
-    public $debug = false;
-
-    /**
      * @var string
      */
     public $root;
-
-    /**
-     * @var Worker
-     */
-    public $server;
 
     /**
      * @var string

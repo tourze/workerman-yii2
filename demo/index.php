@@ -25,6 +25,10 @@ Yii::$app->params['workermanHttp']['demo'] = [
         'count' => 4,
         'name' => 'demo-http'
     ],
+    'task' => [
+        'count' => 4,
+        'name' => 'demo-task',
+    ],
 ];
 
 \tourze\workerman\yii2\server\Server::runApp('demo');
