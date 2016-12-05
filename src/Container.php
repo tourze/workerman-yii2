@@ -34,6 +34,7 @@ class Container extends \yii\di\Container
         'yii\web\ErrorHandler' => 'tourze\workerman\yii2\web\ErrorHandler',
         'yii\web\User' => 'tourze\workerman\yii2\web\User',
         'yii\web\View' => 'tourze\workerman\yii2\web\View',
+        'yii\web\UrlManager' => 'tourze\workerman\yii2\web\UrlManager',
     ];
 
     /**
@@ -203,7 +204,6 @@ class Container extends \yii\di\Container
         'yii\web\JsonResponseFormatter',
         'yii\web\Link',
         'yii\web\MultipartFormDataParser',
-        'yii\web\UrlManager',
         'yii\web\UrlNormalizer',
         'yii\web\UrlRule',
         'yii\web\UserEvent',
