@@ -82,6 +82,10 @@ class HttpServer extends Server
         $_SERVER['SCRIPT_FILENAME'] = $file;
         $_SERVER['DOCUMENT_ROOT'] = $this->root;
         $_SERVER['SCRIPT_NAME'] = $_SERVER['DOCUMENT_URI'] = '/' . $this->indexFile;
+        $file = $this->root . '/' . $this->indexFile;
+        $_SERVER['SCRIPT_FILENAME'] = $file;
+        $_SERVER['DOCUMENT_ROOT'] = $this->root;
+        $_SERVER['PHP_SELF'] = $_SERVER['SCRIPT_NAME'] = $_SERVER['DOCUMENT_URI'] = '/' . $this->indexFile;
 
         $this->app = clone $this->app;
         $this->app->setServer($this->server);
@@ -141,15 +145,8 @@ class HttpServer extends Server
         }
         else
         {
-            $file = $this->root . '/' . $this->indexFile;
-            $_SERVER['SCRIPT_FILENAME'] = $file;
-            $_SERVER['DOCUMENT_ROOT'] = $this->root;
-            $_SERVER['PHP_SELF'] = $_SERVER['SCRIPT_NAME'] = $_SERVER['DOCUMENT_URI'] = '/' . $this->indexFile;
             $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
             $_SERVER['REQUEST_TIME'] = time();
-
-//            $connection->send(print_r($_SERVER, true));
-//            return;
 
             // 使用clone, 原型模式
             // 所有请求都clone一个原生$app对象
