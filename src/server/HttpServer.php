@@ -156,8 +156,8 @@ class HttpServer extends Server
             $app->setRequest(clone $this->app->getRequest());
             $app->setResponse(clone $this->app->getResponse());
             //$app->getResponse()->clear();
-            //$app->setView(clone $this->app->getView());
-            $app->getView()->clear();
+            $app->setView(clone $this->app->getView());
+            //$app->getView()->clear();
             $app->setSession(clone $this->app->getSession());
             $app->setUser(clone $this->app->getUser());
 
