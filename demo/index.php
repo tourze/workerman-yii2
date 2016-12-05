@@ -8,9 +8,7 @@ defined('YII_ENV') or define('YII_ENV', 'prod');
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../vendor/yiisoft/yii2/Yii.php';
 
-/** @var HttpServer $server */
-$server = new HttpServer;
-$server->run([
+Yii::$app->params['workermanHttp']['demo'] = [
     'host' => '127.0.0.1',
     'port' => '6688',
     'root' => __DIR__,
@@ -28,4 +26,6 @@ $server->run([
     'server' => [
         'count' => 4,
     ],
-]);
+];
+
+\tourze\workerman\yii2\server\Server::runApp('demo');

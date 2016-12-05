@@ -2,15 +2,11 @@
 
 namespace tourze\workerman\yii2\server;
 
-use tourze\workerman\yii2\Application;
-use tourze\workerman\yii2\Container;
-use tourze\workerman\yii2\log\Logger;
 use Workerman\Connection\ConnectionInterface;
 use Workerman\Protocols\Http;
 use Workerman\Worker;
 use Yii;
 use yii\base\ErrorException;
-use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
 
 /**
@@ -30,11 +26,6 @@ class HttpServer extends Server
      * @var string 缺省文件名
      */
     public $indexFile = 'index.php';
-
-    /**
-     * @var bool 是否开启xhprof调试
-     */
-    public $xhprofDebug = false;
 
     /**
      * @var bool
@@ -59,23 +50,10 @@ class HttpServer extends Server
     /**
      * @inheritdoc
      */
-    public function run($app)
+    public function run($config)
     {
-        $this->config = is_array($app) ? $app : (array) Yii::$app->params['workermanHttp'][$app];
-        if (isset($this->config['xhprofDebug']))
-        {
-            $this->xhprofDebug = $this->config['xhprofDebug'];
-        }
-        if (isset($this->config['debug']))
-        {
-            $this->debug = $this->config['debug'];
-        }
-        $this->root = $this->config['root'];
-
-        Worker::$logFile = $this->config['logFile'];
-
-        $this->server = new Worker("http://{$this->config['host']}:{$this->config['port']}");
-        foreach ($this->config['server'] as $k => $v)
+        $this->server = new Worker("http://{$this->host}:{$this->port}");
+        foreach ($this->config as $k => $v)
         {
             $this->server->{$k} = $v;
         }
@@ -122,46 +100,7 @@ class HttpServer extends Server
         $_SERVER['DOCUMENT_ROOT'] = $this->root;
         $_SERVER['SCRIPT_NAME'] = $_SERVER['DOCUMENT_URI'] = '/' . $this->indexFile;
 
-        // 关闭Yii2自己实现的异常错误
-        defined('YII_ENABLE_ERROR_HANDLER') || define('YII_ENABLE_ERROR_HANDLER', false);
-        // 每个worker都创建一个独立的app实例
-
-        // 加载文件和一些初始化配置
-        if (isset($this->config['bootstrapFile']))
-        {
-            foreach ($this->config['bootstrapFile'] as $file)
-            {
-                require $file;
-            }
-        }
-        $config = [];
-        foreach ($this->config['configFile'] as $file)
-        {
-            $config = ArrayHelper::merge($config, include $file);
-        }
-
-        if (isset($this->config['bootstrapRefresh']))
-        {
-            $config['bootstrapRefresh'] = $this->config['bootstrapRefresh'];
-        }
-
-        // 为Yii分配一个新的DI容器
-        if (isset($this->config['persistClasses']))
-        {
-            Container::$persistClasses = ArrayHelper::merge(Container::$persistClasses, $this->config['persistClasses']);
-            Container::$persistClasses = array_unique(Container::$persistClasses);
-        }
-        Yii::$container = new Container();
-
-        if ( ! isset($config['components']['assetManager']['basePath']))
-        {
-            $config['components']['assetManager']['basePath'] = $this->root . '/assets';
-        }
-        $config['aliases']['@webroot'] = $this->root;
-        $config['aliases']['@web'] = '/';
-        $this->app = Application::$workerApp = new Application($config);
-        Yii::setLogger(new Logger());
-        $this->app->setRootPath($this->root);
+        $this->app = clone $this->app;
         $this->app->setServer($this->server);
         $this->app->prepare();
     }
@@ -198,7 +137,7 @@ class HttpServer extends Server
 
         //xdebug_start_trace();
 
-        if ($this->xhprofDebug)
+        if ($this->debug)
         {
             xhprof_enable(XHPROF_FLAGS_MEMORY | XHPROF_FLAGS_CPU);
         }
@@ -285,7 +224,7 @@ class HttpServer extends Server
         //xdebug_stop_trace();
         //xdebug_print_function_stack();
 
-        if ($this->xhprofDebug)
+        if ($this->debug)
         {
             $xhprofData = xhprof_disable();
             $xhprofRuns = new \XHProfRuns_Default();

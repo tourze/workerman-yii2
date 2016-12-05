@@ -58,7 +58,8 @@ class Task
      * 执行任务
      *
      * @param string $data
-     * @param int $taskId
+     * @param int    $taskId
+     * @return mixed
      */
     public static function runTask($data, $taskId)
     {
@@ -66,6 +67,6 @@ class Task
         $function = array_shift($data);
         //echo "$taskId Run task: $function\n";
         $params = array_shift($data);
-        call_user_func_array($function, $params);
+        return call_user_func_array($function, $params);
     }
 }

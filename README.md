@@ -33,7 +33,7 @@ swoole 用 C 写的, 看不懂... 那现在有用 PHP 实现的 workerman 了, �
 
 * swoole 任务投递的优化
 * 增加单元测试
-* swoole 管理脚本的完善
+* 兼容swoole
 
 ## 使用方法
 
