@@ -7,7 +7,6 @@ use tourze\workerman\yii2\web\formatter\JsonResponseFormatter;
 use Workerman\Connection\ConnectionInterface;
 use Workerman\Protocols\Http;
 use Yii;
-use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 

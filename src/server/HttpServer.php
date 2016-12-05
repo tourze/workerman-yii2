@@ -153,10 +153,11 @@ class HttpServer extends Server
             $app = clone $this->app;
             Yii::$app =& $app;
             $app->setConnection($connection);
-            //$app->setErrorHandler(clone $this->app->getErrorHandler());
             $app->setRequest(clone $this->app->getRequest());
             $app->setResponse(clone $this->app->getResponse());
+            //$app->getResponse()->clear();
             //$app->setView(clone $this->app->getView());
+            $app->getView()->clear();
             $app->setSession(clone $this->app->getSession());
             $app->setUser(clone $this->app->getUser());
 
