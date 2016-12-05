@@ -272,7 +272,7 @@ class Application extends \yii\web\Application
     /**
      * 返回当前request对象
      *
-     * @return Request
+     * @return Request|\yii\web\Request
      */
     public function getRequest()
     {

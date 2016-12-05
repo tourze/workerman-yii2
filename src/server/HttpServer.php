@@ -53,7 +53,7 @@ class HttpServer extends Server
     public function run($config)
     {
         $this->server = new Worker("http://{$this->host}:{$this->port}");
-        foreach ($this->config as $k => $v)
+        foreach ($config as $k => $v)
         {
             $this->server->{$k} = $v;
         }
@@ -65,8 +65,6 @@ class HttpServer extends Server
 
         $_SERVER['SERVER_ADDR'] = '127.0.0.1';
         $_SERVER['SERVER_NAME'] = 'localhost';
-
-        Worker::runAll();
     }
 
     /**
@@ -170,18 +168,15 @@ class HttpServer extends Server
 
             // 使用clone, 原型模式
             // 所有请求都clone一个原生$app对象
-            $this->app->getRequest()->setUrl(null);
             $app = clone $this->app;
             Yii::$app =& $app;
             $app->setConnection($connection);
-            $app->setErrorHandler(clone $this->app->getErrorHandler());
+            //$app->setErrorHandler(clone $this->app->getErrorHandler());
             $app->setRequest(clone $this->app->getRequest());
             $app->setResponse(clone $this->app->getResponse());
-            $app->setView(clone $this->app->getView());
+            //$app->setView(clone $this->app->getView());
             $app->setSession(clone $this->app->getSession());
             $app->setUser(clone $this->app->getUser());
-            // 部分组件是可以复用的, 所以直接引用
-            //$app->setUrlManager($this->app->getUrlManager());
 
             try
             {

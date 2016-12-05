@@ -172,6 +172,7 @@ abstract class Server extends Object
         $port = ArrayHelper::getValue($config, 'port');
 
         // 执行 HTTP SERVER
+        $serverConfig = ArrayHelper::getValue($config, 'server', []);
         /** @var HttpServer $server */
         $server = new HttpServer([
             'app' => Application::$workerApp,
@@ -180,7 +181,7 @@ abstract class Server extends Object
             'debug' => $isDebug,
             'root' => $root,
         ]);
-        $server->run(ArrayHelper::getValue($config, 'server', []));
+        $server->run($serverConfig);
 
         // 执行 TASK SERVER
 

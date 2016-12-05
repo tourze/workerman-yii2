@@ -1,7 +1,5 @@
 <?php
 
-use tourze\workerman\yii2\server\HttpServer;
-
 defined('YII_DEBUG') or define('YII_DEBUG', false);
 defined('YII_ENV') or define('YII_ENV', 'prod');
 
@@ -12,7 +10,7 @@ Yii::$app->params['workermanHttp']['demo'] = [
     'host' => '127.0.0.1',
     'port' => '6688',
     'root' => __DIR__,
-    'xhprofDebug' => false,
+    'debug' => false,
     // bootstrap文件, 只会引入一次
     'bootstrapFile' => [
         __DIR__ . '/config/aliases.php',
@@ -25,6 +23,7 @@ Yii::$app->params['workermanHttp']['demo'] = [
     'bootstrapRefresh' => [],
     'server' => [
         'count' => 4,
+        'name' => 'demo-http'
     ],
 ];
 
