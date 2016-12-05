@@ -5,6 +5,7 @@ namespace tourze\workerman\yii2\server;
 use tourze\workerman\yii2\Application;
 use tourze\workerman\yii2\async\Task;
 use tourze\workerman\yii2\Container;
+use tourze\workerman\yii2\globalData\Client;
 use tourze\workerman\yii2\log\Logger;
 use Workerman\Worker;
 use Yii;
@@ -156,6 +157,79 @@ abstract class Server extends Object
     }
 
     /**
+     * @param array $config
+     * @param string $host
+     * @param bool $isDebug
+     */
+    public static function runAppGlobalData($config, $host, $isDebug)
+    {
+        $globalConfig = ArrayHelper::getValue($config, 'global');
+        if ( ! $globalConfig)
+        {
+            $globalConfig = [
+                'port' => 2207,
+            ];
+        }
+        $globalDataHost = ArrayHelper::getValue($globalConfig, 'host', $host);
+        $globalDataPort = ArrayHelper::getValue($globalConfig, 'port', 2207);
+        $task = new GlobalServer([
+            'app' => Application::$workerApp,
+            'host' => $globalDataHost,
+            'port' => $globalDataPort,
+            'debug' => $isDebug,
+        ]);
+        $task->run($globalConfig);
+        Application::$globalData = new Client("{$globalDataHost}:{$globalDataPort}");
+    }
+
+    /**
+     * @param $config
+     * @param $host
+     * @param $port
+     * @param $root
+     * @param $isDebug
+     */
+    public static function runAppHttpServer($config, $host, $port, $root, $isDebug)
+    {
+        $serverConfig = ArrayHelper::getValue($config, 'server');
+        if ($serverConfig)
+        {
+            /** @var HttpServer $server */
+            $server = new HttpServer([
+                'app' => Application::$workerApp,
+                'host' => $host,
+                'port' => $port,
+                'debug' => $isDebug,
+                'root' => $root,
+            ]);
+            $server->run($serverConfig);
+        }
+    }
+
+    /**
+     * @param $config
+     * @param $host
+     * @param $isDebug
+     */
+    public static function runAppTaskServer($config, $host, $isDebug)
+    {
+        $taskConfig = ArrayHelper::getValue($config, 'task');
+        if ( ! $taskConfig)
+        {
+            $taskConfig = [
+                'port' => 2208,
+            ];
+        }
+        $task = new TaskServer([
+            'app' => Application::$workerApp,
+            'host' => ArrayHelper::getValue($taskConfig, 'host', $host), // 默认跟http服务同一个主机名
+            'port' => ArrayHelper::getValue($taskConfig, 'port', 2208), // 默认任务使用的2208端口
+            'debug' => $isDebug,
+        ]);
+        $task->run($taskConfig);
+    }
+
+    /**
      * 执行指定的APP配置
      *
      * @param string $app
@@ -181,33 +255,14 @@ abstract class Server extends Object
         $host = ArrayHelper::getValue($config, 'host');
         $port = ArrayHelper::getValue($config, 'port');
 
+        // 全局数据
+        //self::runAppGlobalData($config, $host, $isDebug);
+
         // 执行 HTTP SERVER
-        $serverConfig = ArrayHelper::getValue($config, 'server');
-        if ($serverConfig)
-        {
-            /** @var HttpServer $server */
-            $server = new HttpServer([
-                'app' => Application::$workerApp,
-                'host' => $host,
-                'port' => $port,
-                'debug' => $isDebug,
-                'root' => $root,
-            ]);
-            $server->run($serverConfig);
-        }
+        self::runAppHttpServer($config, $host, $port, $root, $isDebug);
 
         // 执行 TASK SERVER
-        $taskConfig = ArrayHelper::getValue($config, 'task');
-        if ($taskConfig)
-        {
-            $task = new TaskServer([
-                'app' => Application::$workerApp,
-                'host' => ArrayHelper::getValue($taskConfig, 'host', $host), // 默认跟http服务同一个主机名
-                'port' => ArrayHelper::getValue($taskConfig, 'port', $port + 1), // 默认任务使用的http服务端口+1
-                'debug' => $isDebug,
-            ]);
-            $task->run($taskConfig);
-        }
+        //self::runAppTaskServer($config, $host, $isDebug);
 
         Worker::runAll();
     }
