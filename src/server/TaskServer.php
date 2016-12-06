@@ -22,6 +22,11 @@ class TaskServer extends Server
      */
     public function run($config)
     {
+        if (isset($config['interval']))
+        {
+            $this->timeInterval = $config['interval'];
+            unset($config['interval']);
+        }
         $this->server = new Worker("Text://{$this->host}:{$this->port}");
         foreach ($config as $k => $v)
         {

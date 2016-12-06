@@ -31,7 +31,7 @@ swoole 用 C 写的, 看不懂... 那现在有用 PHP 实现的 workerman 了, �
 
 ## 进行中的工作
 
-* swoole 任务投递的优化
+* 异步任务的逻辑优化
 * 增加单元测试
 * 兼容swoole
 
@@ -73,8 +73,6 @@ swoole 用 C 写的, 看不懂... 那现在有用 PHP 实现的 workerman 了, �
 return [
     'workermanHttp' => [
         'frontend' => [
-            'host' => '127.0.0.1',
-            'port' => '6677',
             'root' => realpath(__DIR__ . '/../../frontend/web'),
             // 在这里定义一些常用的可以常驻与内存的组件
             'persistClasses' => [
@@ -95,9 +93,22 @@ return [
             'bootstrapRefresh' => [
                 'xxx\backend\Bootstrap',
             ],
-            // 配置参考 http://doc3.workerman.net/worker-development/property.html
+            'global' => [
+                'host' => '127.0.0.1',
+                'port' => 6676,
+            ],
             'server' => [
+                'host' => '127.0.0.1',
+                'port' => 6677,
+                // 配置参考 http://doc3.workerman.net/worker-development/property.html
                 'count' => 4,
+                'name' => 'demo-http'
+            ],
+            'task' => [
+                'host' => '127.0.0.1',
+                'port' => 6678,
+                'count' => 4,
+                'name' => 'demo-task',
             ],
             'logFile' => __DIR__ . '/../runtime/workerman.log',
         ],

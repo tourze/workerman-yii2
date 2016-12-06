@@ -51,5 +51,6 @@ class ApiController extends Controller
     {
         //Task::pushTask("var_dump", [time()]);
         Task::pushTask("time");
+        return time();
     }
 }

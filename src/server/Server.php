@@ -157,43 +157,45 @@ abstract class Server extends Object
     }
 
     /**
+     * 运行全局数据共享服务器
+     *
      * @param array $config
-     * @param string $host
      * @param bool $isDebug
      */
-    public static function runAppGlobalData($config, $host, $isDebug)
+    public static function runAppGlobalData($config, $isDebug)
     {
-        $globalConfig = ArrayHelper::getValue($config, 'global');
-        if ( ! $globalConfig)
+        $globalConfig = (array) ArrayHelper::getValue($config, 'global');
+        if ($globalConfig)
         {
-            $globalConfig = [
-                'port' => 2207,
-            ];
+            $host = ArrayHelper::getValue($globalConfig, 'host', '127.0.0.1');
+            $port = ArrayHelper::getValue($globalConfig, 'port', 6676);
+            unset($globalConfig['host'], $globalConfig['port']);
+            $task = new GlobalServer([
+                'app' => Application::$workerApp,
+                'host' => $host,
+                'port' => $port,
+                'debug' => $isDebug,
+            ]);
+            $task->run($globalConfig);
+            Application::$globalData = new Client("{$host}:{$port}");
         }
-        $globalDataHost = ArrayHelper::getValue($globalConfig, 'host', $host);
-        $globalDataPort = ArrayHelper::getValue($globalConfig, 'port', 2207);
-        $task = new GlobalServer([
-            'app' => Application::$workerApp,
-            'host' => $globalDataHost,
-            'port' => $globalDataPort,
-            'debug' => $isDebug,
-        ]);
-        $task->run($globalConfig);
-        Application::$globalData = new Client("{$globalDataHost}:{$globalDataPort}");
     }
 
     /**
-     * @param $config
-     * @param $host
-     * @param $port
-     * @param $root
-     * @param $isDebug
+     * 运行HTTP服务器
+     *
+     * @param array $config
+     * @param static $root
+     * @param bool $isDebug
      */
-    public static function runAppHttpServer($config, $host, $port, $root, $isDebug)
+    public static function runAppHttpServer($config, $root, $isDebug)
     {
-        $serverConfig = ArrayHelper::getValue($config, 'server');
+        $serverConfig = (array) ArrayHelper::getValue($config, 'server');
         if ($serverConfig)
         {
+            $host = ArrayHelper::getValue($serverConfig, 'host', '127.0.0.1');
+            $port = ArrayHelper::getValue($serverConfig, 'port', 6677);
+            unset($serverConfig['host'], $serverConfig['port']);
             /** @var HttpServer $server */
             $server = new HttpServer([
                 'app' => Application::$workerApp,
@@ -207,26 +209,27 @@ abstract class Server extends Object
     }
 
     /**
-     * @param $config
-     * @param $host
-     * @param $isDebug
+     * 运行任务处理服务器
+     *
+     * @param array $config
+     * @param bool $isDebug
      */
-    public static function runAppTaskServer($config, $host, $isDebug)
+    public static function runAppTaskServer($config, $isDebug)
     {
-        $taskConfig = ArrayHelper::getValue($config, 'task');
-        if ( ! $taskConfig)
+        $taskConfig = (array) ArrayHelper::getValue($config, 'task');
+        if ($taskConfig)
         {
-            $taskConfig = [
-                'port' => 2208,
-            ];
+            $host = ArrayHelper::getValue($taskConfig, 'host', '127.0.0.1');
+            $port = ArrayHelper::getValue($taskConfig, 'port', 6678);
+            unset($taskConfig['host'], $taskConfig['port']);
+            $task = new TaskServer([
+                'app' => Application::$workerApp,
+                'host' => $host,
+                'port' => $port,
+                'debug' => $isDebug,
+            ]);
+            $task->run($taskConfig);
         }
-        $task = new TaskServer([
-            'app' => Application::$workerApp,
-            'host' => ArrayHelper::getValue($taskConfig, 'host', $host), // 默认跟http服务同一个主机名
-            'port' => ArrayHelper::getValue($taskConfig, 'port', 2208), // 默认任务使用的2208端口
-            'debug' => $isDebug,
-        ]);
-        $task->run($taskConfig);
     }
 
     /**
@@ -253,16 +256,15 @@ abstract class Server extends Object
 
         $root = ArrayHelper::getValue($config, 'root');
         $host = ArrayHelper::getValue($config, 'host');
-        $port = ArrayHelper::getValue($config, 'port');
 
         // 全局数据
-        self::runAppGlobalData($config, $host, $isDebug);
+        self::runAppGlobalData($config, $isDebug);
 
         // 执行 HTTP SERVER
-        self::runAppHttpServer($config, $host, $port, $root, $isDebug);
+        self::runAppHttpServer($config, $root, $isDebug);
 
         // 执行 TASK SERVER
-        self::runAppTaskServer($config, $host, $isDebug);
+        self::runAppTaskServer($config, $isDebug);
 
         Worker::runAll();
     }

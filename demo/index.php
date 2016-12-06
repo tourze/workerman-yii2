@@ -21,12 +21,21 @@ Yii::$app->params['workermanHttp']['demo'] = [
     ],
     // 有一些模块比较特殊, 无法实现Refreshable接口, 此时唯有在这里指定他的类名
     'bootstrapRefresh' => [],
+    'global' => [
+        'host' => '127.0.0.1',
+        'port' => 6676,
+    ],
     'server' => [
+        'host' => '127.0.0.1',
+        'port' => 6677,
+        // 配置参考 http://doc3.workerman.net/worker-development/property.html
         'count' => 4,
         'name' => 'demo-http'
     ],
     'task' => [
-        'count' => 4,
+        'host' => '127.0.0.1',
+        'port' => 6678,
+        'count' => 20,
         'name' => 'demo-task',
     ],
 ];
