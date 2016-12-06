@@ -50,8 +50,8 @@ class ApiController extends Controller
     public function actionTask()
     {
         //Task::pushTask("var_dump", [time()]);
-        Task::pushTask("time");
+        $id = Task::pushTask("time");
         //Task::pushTask('sleep', [10]);
-        return time();
+        return $id;
     }
 }
