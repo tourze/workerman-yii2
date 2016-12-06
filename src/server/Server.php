@@ -256,13 +256,13 @@ abstract class Server extends Object
         $port = ArrayHelper::getValue($config, 'port');
 
         // 全局数据
-        //self::runAppGlobalData($config, $host, $isDebug);
+        self::runAppGlobalData($config, $host, $isDebug);
 
         // 执行 HTTP SERVER
         self::runAppHttpServer($config, $host, $port, $root, $isDebug);
 
         // 执行 TASK SERVER
-        //self::runAppTaskServer($config, $host, $isDebug);
+        self::runAppTaskServer($config, $host, $isDebug);
 
         Worker::runAll();
     }
