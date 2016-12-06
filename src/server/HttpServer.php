@@ -33,6 +33,11 @@ class HttpServer extends Server
     public $sessionKey = 'JSESSIONID';
 
     /**
+     * @var string 要打开的链接
+     */
+    public $xhprofLink;
+
+    /**
      * @inheritdoc
      */
     public function run($config)
@@ -122,8 +127,6 @@ class HttpServer extends Server
 //        $t .= '</pre>';
 //        return $connection->send($t);
 
-        //xdebug_start_trace();
-
         if ($this->debug)
         {
             xhprof_enable(XHPROF_FLAGS_MEMORY | XHPROF_FLAGS_CPU);
@@ -199,15 +202,13 @@ class HttpServer extends Server
             unset($app);
         }
 
-        //xdebug_stop_trace();
-        //xdebug_print_function_stack();
-
         if ($this->debug)
         {
             $xhprofData = xhprof_disable();
             $xhprofRuns = new \XHProfRuns_Default();
             $runId = $xhprofRuns->save_run($xhprofData, 'xhprof_test');
-            echo "http://127.0.0.1/xhprof/xhprof_html/index.php?run=" . $runId . '&source=xhprof_test'."\n";
+            echo $this->xhprofLink ? str_replace('{tag}', $runId, $this->xhprofLink) : $runId;
+            echo "\n";
         }
     }
 }

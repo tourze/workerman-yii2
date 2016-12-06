@@ -159,11 +159,11 @@ abstract class Server extends Object
      * 运行HTTP服务器
      *
      * @param array $config
-     * @param static $root
-     * @param bool $isDebug
      */
-    public static function runAppHttpServer($config, $root, $isDebug)
+    public static function runAppHttpServer($config)
     {
+        $isDebug = ArrayHelper::getValue($config, 'debug', false);
+        $root = ArrayHelper::getValue($config, 'root');
         $serverConfig = (array) ArrayHelper::getValue($config, 'server');
         if ($serverConfig)
         {
@@ -172,6 +172,7 @@ abstract class Server extends Object
             unset($serverConfig['host'], $serverConfig['port']);
             /** @var HttpServer $server */
             $server = new HttpServer([
+                'xhprofLink' => ArrayHelper::getValue($config, 'xhprofLink'),
                 'app' => Application::$workerApp,
                 'host' => $host,
                 'port' => $port,
@@ -186,10 +187,11 @@ abstract class Server extends Object
      * 运行任务处理服务器
      *
      * @param array $config
-     * @param bool $isDebug
      */
-    public static function runAppTaskServer($config, $isDebug)
+    public static function runAppTaskServer($config)
     {
+        // 是否开启调试
+        $isDebug = ArrayHelper::getValue($config, 'debug', false);
         $taskConfig = (array) ArrayHelper::getValue($config, 'task');
         if ($taskConfig)
         {
@@ -225,16 +227,11 @@ abstract class Server extends Object
         // 日志文件
         Worker::$logFile = ArrayHelper::getValue($config, 'logFile');
 
-        // 是否开启调试
-        $isDebug = ArrayHelper::getValue($config, 'debug', false);
-
-        $root = ArrayHelper::getValue($config, 'root');
-
         // 执行 HTTP SERVER
-        self::runAppHttpServer($config, $root, $isDebug);
+        self::runAppHttpServer($config);
 
         // 执行 TASK SERVER
-        self::runAppTaskServer($config, $isDebug);
+        self::runAppTaskServer($config);
 
         Worker::runAll();
     }

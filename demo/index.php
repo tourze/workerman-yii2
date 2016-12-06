@@ -8,7 +8,8 @@ require_once __DIR__ . '/../vendor/yiisoft/yii2/Yii.php';
 
 Yii::$app->params['workermanHttp']['demo'] = [
     'root' => __DIR__,
-    'debug' => false,
+    'debug' => true,
+    'xhprofLink' => 'http://127.0.0.1/xhprof/xhprof_html/index.php?run={tag}&source=xhprof_test',
     // bootstrap文件, 只会引入一次
     'bootstrapFile' => [
         __DIR__ . '/config/aliases.php',
@@ -23,7 +24,7 @@ Yii::$app->params['workermanHttp']['demo'] = [
         'host' => '127.0.0.1',
         'port' => 6677,
         // 配置参考 http://doc3.workerman.net/worker-development/property.html
-        'count' => 4,
+        'count' => 1,
         'name' => 'demo-http'
     ],
     'task' => [
