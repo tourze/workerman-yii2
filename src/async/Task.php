@@ -24,11 +24,20 @@ class Task
     public static $taskCountKey = 'task_count';
 
     /**
+     * @var Connection
+     */
+    public static $redis;
+
+    /**
      * @return Connection
      */
     public static function getRedis()
     {
-        return Yii::$app->get('redis');
+        if ( ! self::$redis)
+        {
+            self::$redis = Yii::$app->get('redis');
+        }
+        return self::$redis;
     }
 
     /**
