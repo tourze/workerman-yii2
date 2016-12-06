@@ -93,10 +93,6 @@ return [
             'bootstrapRefresh' => [
                 'xxx\backend\Bootstrap',
             ],
-            'global' => [
-                'host' => '127.0.0.1',
-                'port' => 6676,
-            ],
             'server' => [
                 'host' => '127.0.0.1',
                 'port' => 6677,

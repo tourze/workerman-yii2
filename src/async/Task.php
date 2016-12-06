@@ -2,7 +2,8 @@
 
 namespace tourze\workerman\yii2\async;
 
-use tourze\workerman\yii2\Application;
+use Yii;
+use yii\redis\Connection;
 
 /**
  * 使用
@@ -21,6 +22,14 @@ class Task
      * @var string
      */
     public static $taskCountKey = 'task_count';
+
+    /**
+     * @return Connection
+     */
+    public static function getRedis()
+    {
+        return Yii::$app->get('redis');
+    }
 
     /**
      * 打包数据
@@ -56,13 +65,9 @@ class Task
      */
     public static function pushTask($function, $params = [])
     {
-        if ( ! Application::$globalData)
-        {
-            return 0;
-        }
         $data = self::packData($function, $params);
-        Application::$globalData->push(self::$taskQueueKey, $data);
-        $taskId = Application::$globalData->increment(self::$taskCountKey);
+        self::getRedis()->rpush(self::$taskQueueKey, $data);
+        $taskId = self::getRedis()->incr(self::$taskCountKey);
         return $taskId;
     }
 
@@ -73,20 +78,17 @@ class Task
      */
     public static function popTask()
     {
-        if ( ! Application::$globalData)
-        {
-            return '';
-        }
-        return Application::$globalData->pop(self::$taskQueueKey);
+        return self::getRedis()->lpop(self::$taskQueueKey);
     }
 
     /**
      * 执行任务
      *
      * @param string $data
+     * @param int $taskId
      * @return mixed
      */
-    public static function runTask($data)
+    public static function runTask($data, $taskId = null)
     {
         $data = self::unpackData($data);
         $function = array_shift($data);

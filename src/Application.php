@@ -2,7 +2,6 @@
 
 namespace tourze\workerman\yii2;
 
-use tourze\workerman\yii2\globalData\Client;
 use tourze\workerman\yii2\web\ErrorHandler;
 use tourze\workerman\yii2\web\Request;
 use tourze\workerman\yii2\web\Response;
@@ -55,11 +54,6 @@ class Application extends \yii\web\Application
      * @var static 当前进行中的$app实例, 存放的是一个通用的, 可以供复制的app实例
      */
     public static $workerApp = null;
-
-    /**
-     * @var Client
-     */
-    public static $globalData = null;
 
     /**
      * @var Worker 当前运行中的服务器实例

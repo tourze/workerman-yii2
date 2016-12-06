@@ -5,7 +5,6 @@ namespace tourze\workerman\yii2\server;
 use tourze\workerman\yii2\Application;
 use tourze\workerman\yii2\async\Task;
 use tourze\workerman\yii2\Container;
-use tourze\workerman\yii2\globalData\Client;
 use tourze\workerman\yii2\log\Logger;
 use Workerman\Worker;
 use Yii;
@@ -157,31 +156,6 @@ abstract class Server extends Object
     }
 
     /**
-     * 运行全局数据共享服务器
-     *
-     * @param array $config
-     * @param bool $isDebug
-     */
-    public static function runAppGlobalData($config, $isDebug)
-    {
-        $globalConfig = (array) ArrayHelper::getValue($config, 'global');
-        if ($globalConfig)
-        {
-            $host = ArrayHelper::getValue($globalConfig, 'host', '127.0.0.1');
-            $port = ArrayHelper::getValue($globalConfig, 'port', 6676);
-            unset($globalConfig['host'], $globalConfig['port']);
-            $task = new GlobalServer([
-                'app' => Application::$workerApp,
-                'host' => $host,
-                'port' => $port,
-                'debug' => $isDebug,
-            ]);
-            $task->run($globalConfig);
-            Application::$globalData = new Client("{$host}:{$port}");
-        }
-    }
-
-    /**
      * 运行HTTP服务器
      *
      * @param array $config
@@ -255,10 +229,6 @@ abstract class Server extends Object
         $isDebug = ArrayHelper::getValue($config, 'debug', false);
 
         $root = ArrayHelper::getValue($config, 'root');
-        $host = ArrayHelper::getValue($config, 'host');
-
-        // 全局数据
-        self::runAppGlobalData($config, $isDebug);
 
         // 执行 HTTP SERVER
         self::runAppHttpServer($config, $root, $isDebug);
